@@ -4,6 +4,7 @@ use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\PerformanceController;
 use App\Http\Controllers\API\TrainingController;
 use App\Http\Controllers\API\PlayerController;
+use App\Http\Controllers\API\DashboardController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -44,4 +45,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/users', function (Request $request) {
         return \App\Models\User::all();
     });
+
+    // Dashboard Routes
+    Route::middleware('role:player')->get('/player/dashboard', [DashboardController::class, 'playerStats']);
+    Route::middleware('role:coach')->get('/coach/dashboard', [DashboardController::class, 'coachStats']);
+    Route::middleware('role:manager')->get('/manager/dashboard', [DashboardController::class, 'managerStats']);
+    Route::middleware('role:admin')->get('/admin/dashboard', [DashboardController::class, 'adminStats']);
 });
