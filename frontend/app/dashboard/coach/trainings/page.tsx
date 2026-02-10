@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import api from '@/lib/axios';
+import Link from 'next/link';
 
 interface Training {
     id: number;
@@ -121,6 +122,12 @@ export default function TrainingsPage() {
                                         <td className="px-6 py-4 font-medium text-gray-900">{t.title}</td>
                                         <td className="px-6 py-4 text-gray-500 max-w-xs truncate">{t.description}</td>
                                         <td className="px-6 py-4 text-right space-x-2">
+                                            <Link 
+                                                href={`trainings/${t.id}/attendance`}
+                                                className="text-green-600 hover:text-green-800 mr-2"
+                                            >
+                                                Attendance
+                                            </Link>
                                             <button 
                                                 onClick={() => openEditModal(t)}
                                                 className="text-blue-600 hover:text-blue-800"

@@ -36,6 +36,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/trainings', [TrainingController::class, 'store']); // Should be coach/admin only strictly speaking
     Route::put('/trainings/{training}', [TrainingController::class, 'update']);
     Route::delete('/trainings/{training}', [TrainingController::class, 'destroy']);
+    Route::get('/trainings/{training}/attendance', [TrainingController::class, 'getAttendance']);
+    Route::post('/trainings/{training}/attendance', [TrainingController::class, 'storeAttendance']);
 
     // Performances
     Route::get('/performances', [PerformanceController::class, 'index']);

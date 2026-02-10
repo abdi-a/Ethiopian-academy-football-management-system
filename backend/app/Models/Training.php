@@ -20,4 +20,9 @@ class Training extends Model
     {
         return $this->belongsTo(User::class, 'coach_id');
     }
+
+    public function attendances()
+    {
+        return $this->hasMany(Attendance::class);
+    }
 }

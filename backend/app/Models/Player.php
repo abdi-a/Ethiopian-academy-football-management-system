@@ -30,4 +30,9 @@ class Player extends Model
     {
         return $this->hasMany(Performance::class);
     }
+
+    public function attendances()
+    {
+        return $this->hasMany(Attendance::class);
+    }
 }

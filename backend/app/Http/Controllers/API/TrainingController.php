@@ -43,4 +43,31 @@ class TrainingController extends Controller
         $training->delete();
         return response()->json(null, 204);
     }
+
+    public function getAttendance(Training $training)
+    {
+        return $training->attendances()->with('player.user')->get();
+    }
+
+    public function storeAttendance(Request $request, Training $training)
+    {
+        $request->validate([
+            'attendances' => 'required|array',
+            'attendances.*.player_id' => 'required|exists:players,id',
+            'attendances.*.status' => 'required|in:Present,Absent,Excused,Late',
+            'attendances.*.remarks' => 'nullable|string'
+        ]);
+
+        foreach ($request->attendances as $record) {
+            $training->attendances()->updateOrCreate(
+                ['player_id' => $record['player_id']],
+                [
+                    'status' => $record['status'], 
+                    'remarks' => $record['remarks'] ?? null
+                ]
+            );
+        }
+
+        return response()->json(['message' => 'Attendance saved successfully']);
+    }
 }
