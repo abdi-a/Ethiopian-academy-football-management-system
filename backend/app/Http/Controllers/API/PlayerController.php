@@ -17,7 +17,8 @@ class PlayerController extends Controller
     {
         $validated = $request->validate([
             'status' => 'sometimes|string',
-            'position' => 'sometimes|string'
+            'position' => 'sometimes|string',
+            'team_id' => 'nullable|exists:teams,id'
         ]);
         
         $player->update($validated);

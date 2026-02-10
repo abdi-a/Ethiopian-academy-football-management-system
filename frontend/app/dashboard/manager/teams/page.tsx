@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import api from '@/lib/axios';
+import Link from 'next/link';
+
 
 interface Team {
     id: number;
@@ -156,7 +158,7 @@ export default function ManagerTeamsPage() {
                         </div>
 
                         <div className="mt-4 pt-4 border-t flex justify-end">
-                            <button className="text-indigo-600 hover:text-indigo-800 text-sm font-medium">Manage Roster →</button>
+                            <Link href={`./teams/${team.id}`} className="text-indigo-600 hover:text-indigo-800 text-sm font-medium">Manage Roster →</Link>
                         </div>
                     </div>
                 ))}
