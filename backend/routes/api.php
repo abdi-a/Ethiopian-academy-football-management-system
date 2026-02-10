@@ -44,11 +44,10 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Players
     Route::get('/players', [PlayerController::class, 'index']);
+    Route::put('/players/{player}', [PlayerController::class, 'update']);
 
     // Users
-    Route::get('/users', function (Request $request) {
-        return \App\Models\User::all();
-    });
+    Route::apiResource('users', \App\Http\Controllers\API\UserController::class);
 
     // Dashboard Routes
     Route::middleware('role:player')->get('/player/dashboard', [DashboardController::class, 'playerStats']);

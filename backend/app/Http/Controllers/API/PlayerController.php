@@ -12,4 +12,16 @@ class PlayerController extends Controller
     {
         return Player::with('user')->get();
     }
+
+    public function update(Request $request, Player $player)
+    {
+        $validated = $request->validate([
+            'status' => 'sometimes|string',
+            'position' => 'sometimes|string'
+        ]);
+        
+        $player->update($validated);
+        
+        return response()->json($player);
+    }
 }

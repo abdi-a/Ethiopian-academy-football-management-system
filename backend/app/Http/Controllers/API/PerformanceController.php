@@ -8,9 +8,16 @@ use Illuminate\Http\Request;
 
 class PerformanceController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        // If user is player, valid see only own perfs? Let's generic for now.
+        $user = $request->user();
+
+        if ($user->role === 'player') {
+            return Performance::whereHas('player', function($q) use ($user) {
+                $q->where('user_id', $user->id);
+            })->with(['coach'])->latest()->get();
+        }
+
         return Performance::with(['player.user', 'coach'])->latest()->get();
     }
 
