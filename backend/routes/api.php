@@ -5,6 +5,7 @@ use App\Http\Controllers\API\PerformanceController;
 use App\Http\Controllers\API\TrainingController;
 use App\Http\Controllers\API\PlayerController;
 use App\Http\Controllers\API\DashboardController;
+use App\Http\Controllers\API\ProfileController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -27,6 +28,8 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/me', [AuthController::class, 'me']);
+    Route::put('/profile', [ProfileController::class, 'update']);
+
 
     // Trainings
     Route::get('/trainings', [TrainingController::class, 'index']);
@@ -37,6 +40,7 @@ Route::middleware('auth:sanctum')->group(function () {
     // Performances
     Route::get('/performances', [PerformanceController::class, 'index']);
     Route::post('/performances', [PerformanceController::class, 'store']); // Coach/admin only
+    Route::delete('/performances/{performance}', [PerformanceController::class, 'destroy']);
 
     // Players
     Route::get('/players', [PlayerController::class, 'index']);

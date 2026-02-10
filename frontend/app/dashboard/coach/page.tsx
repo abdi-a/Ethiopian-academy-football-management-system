@@ -2,90 +2,96 @@
 
 import { useEffect, useState } from 'react';
 import api from '../../../lib/axios';
-import { useAuth } from '../../../context/AuthContext';
+import StatCard from '../../../components/dashboard/StatCard';
 
 export default function CoachDashboard() {
-  const { user, logout } = useAuth();
-  const [trainings, setTrainings] = useState<any[]>([]);
-  const [players, setPlayers] = useState<any[]>([]);
-  
-  // Forms
-  const [newTraining, setNewTraining] = useState({ title: '', date: '', description: '' });
-  const [performance, setPerformance] = useState({ player_id: '', rating: 5, notes: '' });
+    const [data, setData] = useState<any | null>(null);
+    const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    fetchData();
-  }, []);
+    useEffect(() => {
+        api.get('/coach/dashboard')
+            .then(res => {
+                setData(res.data);
+                setLoading(false);
+            })
+            .catch(err => {
+                console.error("Failed to fetch dashboard data", err);
+                setLoading(false);
+            });
+    }, []);
 
-  const fetchData = () => {
-    api.get('/trainings').then(res => setTrainings(res.data));
-    api.get('/players').then(res => setPlayers(res.data));
-  }
+    if (loading) return <div>Loading dashboard...</div>;
+    if (!data) return <div>Dashboard unavailable.</div>;
 
-  const handleCreateTraining = async (e: React.FormEvent) => {
-    e.preventDefault();
-    await api.post('/trainings', newTraining);
-    setNewTraining({ title: '', date: '', description: '' });
-    fetchData();
-  };
+    return (
+        <div className="space-y-6">
+            <h1 className="text-2xl font-bold text-gray-800">Coach Dashboard</h1>
+            
+            {/* Stats Overview */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <StatCard 
+                    title="Total Players" 
+                    value={data.overview.total_players} 
+                />
+                <StatCard 
+                    title="All Time Sessions" 
+                    value={data.overview.total_trainings} 
+                />
+                <StatCard 
+                    title="Sessions Today" 
+                    value={data.overview.today_sessions} 
+                    trend={data.overview.today_sessions > 0 ? 'up' : 'neutral'}
+                />
+            </div>
 
-  const handleAddPerformance = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if(!performance.player_id) return alert("Select a player");
-    await api.post('/performances', performance);
-    setPerformance({ player_id: '', rating: 5, notes: '' });
-    alert("Performance recorded!");
-  };
-
-  return (
-    <div className="min-h-screen bg-gray-50 p-8">
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold text-gray-800">Coach Dashboard - {user?.name}</h1>
-        <button onClick={logout} className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600">Logout</button>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        
-        {/* Training Management */}
-        <div className="bg-white p-6 rounded-lg shadow">
-          <h2 className="text-xl font-bold mb-4">Schedule Training</h2>
-          <form onSubmit={handleCreateTraining} className="space-y-3 mb-6">
-            <input placeholder="Title" className="border p-2 w-full rounded" value={newTraining.title} onChange={e => setNewTraining({...newTraining, title: e.target.value})} required />
-            <input type="datetime-local" className="border p-2 w-full rounded" value={newTraining.date} onChange={e => setNewTraining({...newTraining, date: e.target.value})} required />
-            <textarea placeholder="Description" className="border p-2 w-full rounded" value={newTraining.description} onChange={e => setNewTraining({...newTraining, description: e.target.value})} required />
-            <button className="bg-blue-600 text-white px-4 py-2 rounded w-full">Add Session</button>
-          </form>
-
-          <h3 className="font-bold border-b pb-2 mb-2">Upcoming Sessions</h3>
-          <ul className="space-y-2 max-h-60 overflow-y-auto">
-             {trainings.map(t => (
-                 <li key={t.id} className="text-sm border p-2 rounded">
-                     <strong>{t.title}</strong> - {new Date(t.date).toLocaleString()}
-                 </li>
-             ))}
-          </ul>
+            {/* Today's Schedule */}
+            <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
+                <h3 className="font-semibold text-lg mb-4">Today's Training Schedule</h3>
+                {data.today_trainings && data.today_trainings.length > 0 ? (
+                    <div className="space-y-3">
+                        {data.today_trainings.map((session: any) => (
+                            <div key={session.id} className="p-3 bg-blue-50 rounded border border-blue-100 flex justify-between">
+                                <div>
+                                    <p className="font-medium text-blue-900">{session.topics || 'Training Session'}</p>
+                                    <p className="text-sm text-blue-700">Time: {session.time}</p>
+                                </div>
+                                <button className="text-sm bg-white border border-blue-200 px-3 py-1 rounded text-blue-600 hover:bg-blue-100">
+                                    Manage
+                                </button>
+                            </div>
+                        ))}
+                    </div>
+                ) : (
+                    <p className="text-gray-500 text-sm">No training sessions scheduled for today.</p>
+                )}
+            </div>
+            
+            {/* Recent Players */}
+            <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
+                <h3 className="font-semibold text-lg mb-4">New Players</h3>
+                 {data.recent_players && data.recent_players.length > 0 ? (
+                    <table className="min-w-full text-sm text-left text-gray-500">
+                        <thead className="text-xs text-gray-700 uppercase bg-gray-50">
+                            <tr>
+                                <th className="px-6 py-3">Name</th>
+                                <th className="px-6 py-3">Email</th>
+                                <th className="px-6 py-3">Role</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {data.recent_players.map((user: any) => (
+                                <tr key={user.id} className="bg-white border-b hover:bg-gray-50">
+                                    <td className="px-6 py-4 font-medium text-gray-900">{user.name}</td>
+                                    <td className="px-6 py-4">{user.email}</td>
+                                    <td className="px-6 py-4 capitalize">{user.role}</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                ) : (
+                    <p className="text-gray-500 text-sm">No recent players found.</p>
+                )}
+            </div>
         </div>
-
-        {/* Performance Management */}
-        <div className="bg-white p-6 rounded-lg shadow">
-            <h2 className="text-xl font-bold mb-4">Record Performance</h2>
-            <form onSubmit={handleAddPerformance} className="space-y-3">
-                <select className="border p-2 w-full rounded" value={performance.player_id} onChange={e => setPerformance({...performance, player_id: e.target.value})} required>
-                    <option value="">Select Player</option>
-                    {players.map(p => (
-                        <option key={p.id} value={p.id}>{p.user.name} ({p.position || 'No Pos'})</option>
-                    ))}
-                </select>
-                <div>
-                    <label>Rating (1-10): {performance.rating}</label>
-                    <input type="range" min="1" max="10" className="w-full" value={performance.rating} onChange={e => setPerformance({...performance, rating: parseInt(e.target.value)})} />
-                </div>
-                <textarea placeholder="Performance Notes" className="border p-2 w-full rounded" value={performance.notes} onChange={e => setPerformance({...performance, notes: e.target.value})} />
-                <button className="bg-green-600 text-white px-4 py-2 rounded w-full">Save Record</button>
-            </form>
-        </div>
-
-      </div>
-    </div>
-  );
+    );
 }

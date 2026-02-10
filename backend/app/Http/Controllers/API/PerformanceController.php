@@ -37,4 +37,10 @@ class PerformanceController extends Controller
 
         return response()->json($performance, 201);
     }
+
+    public function destroy(Performance $performance)
+    {
+        $performance->delete();
+        return response()->json(null, 204);
+    }
 }
