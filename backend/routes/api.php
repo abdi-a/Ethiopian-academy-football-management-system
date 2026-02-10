@@ -49,6 +49,11 @@ Route::middleware('auth:sanctum')->group(function () {
     // Users
     Route::apiResource('users', \App\Http\Controllers\API\UserController::class);
 
+    // Teams & Games
+    Route::apiResource('teams', \App\Http\Controllers\API\TeamController::class);
+    Route::apiResource('games', \App\Http\Controllers\API\GameController::class);
+
+
     // Dashboard Routes
     Route::middleware('role:player')->get('/player/dashboard', [DashboardController::class, 'playerStats']);
     Route::middleware('role:coach')->get('/coach/dashboard', [DashboardController::class, 'coachStats']);
